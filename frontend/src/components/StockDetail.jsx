@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
 import { getQuote } from "../services/api"
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
+import { getHistory } from "../services/api"
 
 function StockDetail({ ticker }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [history, setHistory] = useState(null)
 
   useEffect(() => {
     if (!ticker) return
@@ -12,11 +15,16 @@ function StockDetail({ ticker }) {
     setLoading(true)
     setError(null)
     setData(null)
+    setHistory(null)
 
     getQuote(ticker)
       .then(result => {
         setData(result)
         setLoading(false)
+        return getHistory(ticker)
+      })
+      .then(histResult => {
+        setHistory(histResult)
       })
       .catch(err => {
         setError("Could not find stock. Please check the ticker symbol.")
@@ -74,6 +82,38 @@ function StockDetail({ ticker }) {
               {data.indicators.macd > data.indicators.macd_signal ? "Bullish" : "Bearish"}
             </p>
           </div>
+          {/* Chart Section */}
+{history && (
+  <div style={{ marginTop: "32px" }}>
+    <h3>6 Month Price Chart</h3>
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={history}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis
+          dataKey="date"
+          tick={{ fontSize: 11 }}
+          tickFormatter={(val) => val.slice(5)}
+        />
+        <YAxis
+          domain={["auto", "auto"]}
+          tick={{ fontSize: 11 }}
+          tickFormatter={(val) => `₹${val}`}
+        />
+        <Tooltip
+          formatter={(value) => [`₹${value}`, "Close"]}
+          labelFormatter={(label) => `Date: ${label}`}
+        />
+        <Line
+          type="monotone"
+          dataKey="close"
+          stroke="#0066cc"
+          dot={false}
+          strokeWidth={2}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+)}
 
         </div>
       </div>

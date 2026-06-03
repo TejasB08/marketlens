@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from app.services.market_service import get_market_overview, get_quote
 from app.schemas.quote_schema import QuoteSchema
+from app.services.market_service import get_quote
+from app.data.fetch import get_stock_data
 
 router = APIRouter()
 
@@ -39,3 +41,27 @@ def market_overview():
         )
 
     return result
+
+@router.get("/quote/{ticker}/history")
+def fetch_history(ticker: str):
+    """
+    GET /quote/RELIANCE.NS/history
+    Returns 6 months of daily closing prices for charting.
+    """
+    ticker = ticker.upper()
+    raw_data = get_stock_data(ticker)
+
+    if raw_data is None:
+        raise HTTPException(status_code=404, detail=f"Ticker not found: {ticker}")
+
+    history = raw_data["history"]
+
+    # Convert DataFrame to list of {date, close} objects
+    chart_data = []
+    for date, row in history.iterrows():
+        chart_data.append({
+            "date": str(date)[:10],  # Just the YYYY-MM-DD part
+            "close": round(float(row["Close"]), 2)
+        })
+
+    return chart_data

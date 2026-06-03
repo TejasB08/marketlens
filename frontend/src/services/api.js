@@ -11,3 +11,8 @@ export const getMarketOverview = async () => {
   const response = await axios.get(`${BASE_URL}/market/overview`)
   return response.data
 }
+
+export const getHistory = async (ticker) => {
+  const response = await axios.get(`${BASE_URL}/quote/${ticker}/history`)
+  return response.data
+}
