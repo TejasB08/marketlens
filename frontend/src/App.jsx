@@ -2,6 +2,7 @@ import { useState } from "react"
 import MarketOverview from "./components/MarketOverview"
 import SearchBar from "./components/SearchBar"
 import StockDetail from "./components/StockDetail"
+import Screener from "./components/Screener"
 
 function App() {
   const [selectedTicker, setSelectedTicker] = useState(null)
@@ -13,6 +14,8 @@ function App() {
       <hr style={{ margin: "32px 0" }} />
       <SearchBar onSearch={setSelectedTicker} />
       {selectedTicker && <StockDetail ticker={selectedTicker} />}
+      <hr style={{ margin: "32px 0" }} />
+      <Screener onSelectTicker={setSelectedTicker} />
     </div>
   )
 }

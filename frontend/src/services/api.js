@@ -16,3 +16,13 @@ export const getHistory = async (ticker) => {
   const response = await axios.get(`${BASE_URL}/quote/${ticker}/history`)
   return response.data
 }
+
+export const scanUniverse = async () => {
+  const response = await axios.get(`${BASE_URL}/screener/scan`)
+  return response.data
+}
+
+export const runPreset = async (presetName) => {
+  const response = await axios.get(`${BASE_URL}/screener/preset/${presetName}`)
+  return response.data
+}
