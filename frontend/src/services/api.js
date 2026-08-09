@@ -26,3 +26,13 @@ export const runPreset = async (presetName) => {
   const response = await axios.get(`${BASE_URL}/screener/preset/${presetName}`)
   return response.data
 }
+
+export const getTopMovers = async (limit = 5) => {
+  const response = await axios.get(`${BASE_URL}/market/movers?limit=${limit}`)
+  return response.data
+}
+
+export const getSectorBreakdown = async () => {
+  const response = await axios.get(`${BASE_URL}/market/sector-breakdown`)
+  return response.data
+}

@@ -1,7 +1,8 @@
 from app.data.fetch import get_stock_data
 from app.analytics.indicators import calculate_indicators
 from app.schemas.quote_schema import QuoteSchema, IndicatorsSchema
-
+from app.services.screener_service import scan_universe
+from app.data.universe import SECTOR_MAP
 
 def get_quote(ticker: str) -> QuoteSchema:
     """
@@ -51,3 +52,48 @@ def get_market_overview() -> dict:
             }
 
     return overview
+
+def get_top_movers(limit: int = 5) -> dict:
+    """
+    Returns top N gainers and top N losers across the NIFTY 50,
+    ranked by change_percent. Reuses scan_universe() so this is
+    cache-backed just like the screener — cheap on repeat calls.
+    """
+    scanned = scan_universe()
+
+    # Filter out any stocks where change_percent came back None
+    # (e.g. a ticker yfinance couldn't compute previous_close for)
+    valid = [s for s in scanned.values() if s["change_percent"] is not None]
+
+    ranked = sorted(valid, key=lambda s: s["change_percent"], reverse=True)
+
+    return {
+        "gainers": ranked[:limit],
+        "losers": ranked[-limit:][::-1]  # reverse so biggest loser is first
+    }
+
+
+def get_sector_breakdown() -> list:
+    """
+    Groups NIFTY 50 stocks by sector and returns each sector's
+    average change_percent, sorted best-performing first.
+    """
+    scanned = scan_universe()
+
+    sector_totals = {}  # sector -> list of change_percent values
+
+    for ticker, stock in scanned.items():
+        sector = SECTOR_MAP.get(ticker, "Other")
+        if stock["change_percent"] is not None:
+            sector_totals.setdefault(sector, []).append(stock["change_percent"])
+
+    breakdown = [
+        {
+            "sector": sector,
+            "avg_change_percent": round(sum(values) / len(values), 2),
+            "stock_count": len(values)
+        }
+        for sector, values in sector_totals.items()
+    ]
+
+    return sorted(breakdown, key=lambda s: s["avg_change_percent"], reverse=True)

@@ -3,6 +3,8 @@ from app.services.market_service import get_market_overview, get_quote
 from app.schemas.quote_schema import QuoteSchema
 from app.services.market_service import get_quote
 from app.data.fetch import get_stock_data
+from app.services.market_service import get_top_movers, get_sector_breakdown
+from app.schemas.market_schema import TopMoversSchema, SectorBreakdownSchema
 
 router = APIRouter()
 
@@ -65,3 +67,21 @@ def fetch_history(ticker: str):
         })
 
     return chart_data
+
+@router.get("/market/movers", response_model=TopMoversSchema)
+def market_movers(limit: int = 5):
+    """
+    GET /market/movers?limit=5
+    Returns top N gainers and losers across the NIFTY 50.
+    """
+    result = get_top_movers(limit=limit)
+    return result
+
+
+@router.get("/market/sector-breakdown", response_model=list[SectorBreakdownSchema])
+def sector_breakdown():
+    """
+    GET /market/sector-breakdown
+    Returns average % change per sector, best-performing first.
+    """
+    return get_sector_breakdown()
