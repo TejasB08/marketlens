@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.services.market_service import get_market_overview, get_quote
 from app.schemas.quote_schema import QuoteSchema
-from app.services.market_service import get_quote
 from app.data.fetch import get_stock_data
 from app.services.market_service import get_top_movers, get_sector_breakdown
 from app.schemas.market_schema import TopMoversSchema, SectorBreakdownSchema
