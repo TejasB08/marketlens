@@ -36,3 +36,8 @@ export const getSectorBreakdown = async () => {
   const response = await axios.get(`${BASE_URL}/market/sector-breakdown`)
   return response.data
 }
+
+export const getMarketNews = async (limit = 10) =>{
+  const response = await axios.get(`${BASE_URL}/news?limit=${limit}`)
+  return response.data
+}

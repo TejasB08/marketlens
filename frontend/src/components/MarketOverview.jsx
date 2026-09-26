@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { getMarketOverview } from "../services/api"
 import TopMovers from "./TopMovers"
 import SectorBreakdown from "./SectorBreakdown"
+import MarketNews from "./MarketNews"
 
 function MarketOverview() {
   const [data, setData] = useState(null)
@@ -42,6 +43,9 @@ function MarketOverview() {
       </div>
       <div style={{ marginTop: "24px" }}>
         <SectorBreakdown />
+      </div>
+      <div style={{marginTop: "24px"}}>
+        <MarketNews />
       </div>
     </div>
   )
