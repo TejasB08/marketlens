@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.quote import router as quote_router
 from app.api.routes.screener import router as screener_router
 from app.api.routes.news import router as news_router
+from app.api.routes.watchlist import router as watchlist_router
 
 app = FastAPI(
     title="MarketLens API",
@@ -23,6 +24,7 @@ app.add_middleware(
 app.include_router(quote_router, prefix="/api/v1")
 app.include_router(screener_router, prefix="/api/v1")
 app.include_router(news_router, prefix="/api/v1")
+app.include_router(watchlist_router, prefix="/api/v1")
 
 @app.get("/")
 def root():
