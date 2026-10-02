@@ -3,6 +3,7 @@ import MarketOverview from "./components/MarketOverview"
 import SearchBar from "./components/SearchBar"
 import StockDetail from "./components/StockDetail"
 import Screener from "./components/Screener"
+import Watchlist from "./components/Watchlist"
 
 function App() {
   const [selectedTicker, setSelectedTicker] = useState(null)
@@ -16,6 +17,8 @@ function App() {
       {selectedTicker && <StockDetail ticker={selectedTicker} />}
       <hr style={{ margin: "32px 0" }} />
       <Screener onSelectTicker={setSelectedTicker} />
+      <hr style={{ margin: "32px 0" }} />
+      <Watchlist onSelectTicker={setSelectedTicker} />
     </div>
   )
 }

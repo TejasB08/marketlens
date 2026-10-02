@@ -41,3 +41,18 @@ export const getMarketNews = async (limit = 10) =>{
   const response = await axios.get(`${BASE_URL}/news?limit=${limit}`)
   return response.data
 }
+
+export const getWatchlist = async () => {
+  const response = await axios.get(`${BASE_URL}/watchlist`)
+  return response.data
+}
+
+export const addToWatchlist = async (ticker) => {
+  const response = await axios.post(`${BASE_URL}/watchlist/${ticker}`)
+  return response.data
+}
+
+export const removeFromWatchlist = async (ticker) => {
+  const response = await axios.delete(`${BASE_URL}/watchlist/${ticker}`)
+  return response.data
+}
