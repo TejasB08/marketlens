@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { getWatchlist, removeFromWatchlist } from "../services/api"
 
-function Watchlist({ onSelectTicker }) {
+function Watchlist({ onSelectTicker, refreshTrigger }) {
   const [stocks, setStocks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -22,7 +22,7 @@ function Watchlist({ onSelectTicker }) {
 
   useEffect(() => {
     loadWatchlist()
-  }, [])
+  }, [refreshTrigger]) // Refresh when the refreshTrigger prop changes
 
   const handleRemove = async (ticker) => {
     try {

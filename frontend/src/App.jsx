@@ -7,6 +7,11 @@ import Watchlist from "./components/Watchlist"
 
 function App() {
   const [selectedTicker, setSelectedTicker] = useState(null)
+  const [watchlistVersion, setWatchlistVersion] = useState(0)
+
+  const handleWatchlistUpdate = () => {
+    setWatchlistVersion((prev) => prev + 1)
+  }
 
   return (
     <div style={{ padding: "24px", maxWidth: "1000px", margin: "0 auto" }}>
@@ -14,11 +19,19 @@ function App() {
       <MarketOverview />
       <hr style={{ margin: "32px 0" }} />
       <SearchBar onSearch={setSelectedTicker} />
-      {selectedTicker && <StockDetail ticker={selectedTicker} />}
+      {selectedTicker && (
+        <StockDetail 
+          ticker={selectedTicker} 
+          onStockAdded={handleWatchlistUpdate} 
+        />
+      )}
       <hr style={{ margin: "32px 0" }} />
       <Screener onSelectTicker={setSelectedTicker} />
       <hr style={{ margin: "32px 0" }} />
-      <Watchlist onSelectTicker={setSelectedTicker} />
+      <Watchlist 
+        onSelectTicker={setSelectedTicker} 
+        refreshTrigger={watchlistVersion} 
+      />
     </div>
   )
 }

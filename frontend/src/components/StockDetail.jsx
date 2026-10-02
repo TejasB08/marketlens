@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
 import { getQuote, getHistory, addToWatchlist } from "../services/api"
 
-function StockDetail({ ticker }) {
+function StockDetail({ ticker, onStockAdded }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -13,8 +13,11 @@ function StockDetail({ ticker }) {
   setWatchlistStatus("adding")
   try {
   await addToWatchlist(data.ticker)
-  setWatchlistStatus("added")}
+  setWatchlistStatus("added")
+  if (onStockAdded) onStockAdded() // Notify parent component to refresh watchlist
+  }
   catch(err){
+    console.error("Watchlist error details:", err);
     setWatchlistStatus("error")}
   }
 
