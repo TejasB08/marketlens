@@ -1,13 +1,25 @@
 import { useEffect, useState } from "react"
-import { getQuote } from "../services/api"
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
-import { getHistory } from "../services/api"
+import { getQuote, getHistory, addToWatchlist } from "../services/api"
 
-function StockDetail({ ticker }) {
+function StockDetail({ ticker, onStockAdded }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [history, setHistory] = useState(null)
+  const [watchlistStatus, setWatchlistStatus] = useState("idle")
+
+  const handleAddToWatchlist = async () => {
+  setWatchlistStatus("adding")
+  try {
+  await addToWatchlist(data.ticker)
+  setWatchlistStatus("added")
+  if (onStockAdded) onStockAdded() // Notify parent component to refresh watchlist
+  }
+  catch(err){
+    console.error("Watchlist error details:", err);
+    setWatchlistStatus("error")}
+  }
 
   useEffect(() => {
     if (!ticker) return
@@ -16,6 +28,7 @@ function StockDetail({ ticker }) {
     setError(null)
     setData(null)
     setHistory(null)
+    setWatchlistStatus("idle")
 
     getQuote(ticker)
       .then(result => {
@@ -47,6 +60,23 @@ function StockDetail({ ticker }) {
         </p>
         <p style={{ color: "#666" }}>Volume: {data.volume?.toLocaleString()}</p>
       </div>
+      {/* Watchlist Button Section */}
+      <button
+        onClick={handleAddToWatchlist}
+        disabled={watchlistStatus === "adding" || watchlistStatus === "added"}
+        style={{ 
+          padding: "8px 16px",
+          borderRadius: "6px",
+          border: "1px solid #0066cc",
+          background: watchlistStatus === "added" ? "#e6f0ff" : "white",
+          color: "#0066cc", cursor: "pointer"
+        }}
+        >
+          {watchlistStatus === "added" ? "✓ Added to Watchlist" : "+ Add to Watchlist"}
+        </button>
+        {watchlistStatus === "error" && (
+          <p style={{ color: "red" }}>Could not add to watchlist.</p>
+        )}
 
       {/* Indicators Section */}
       <div>
@@ -82,42 +112,42 @@ function StockDetail({ ticker }) {
               {data.indicators.macd > data.indicators.macd_signal ? "Bullish" : "Bearish"}
             </p>
           </div>
-          {/* Chart Section */}
-{history && (
-  <div style={{ marginTop: "32px" }}>
-    <h3>6 Month Price Chart</h3>
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={history}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          dataKey="date"
-          tick={{ fontSize: 11 }}
-          tickFormatter={(val) => val.slice(5)}
-        />
-        <YAxis
-          domain={["auto", "auto"]}
-          tick={{ fontSize: 11 }}
-          tickFormatter={(val) => `₹${val}`}
-        />
-        <Tooltip
-          formatter={(value) => [`₹${value}`, "Close"]}
-          labelFormatter={(label) => `Date: ${label}`}
-        />
-        <Line
-          type="monotone"
-          dataKey="close"
-          stroke="#0066cc"
-          dot={false}
-          strokeWidth={2}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-)}
-
         </div>
       </div>
-    </div>
+          {/* Chart Section */}
+          {history && (
+            <div style={{ marginTop: "32px" }}>
+              <h3>6 Month Price Chart</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={history}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(val) => val.slice(5)}
+                  />
+                  <YAxis
+                    domain={["auto", "auto"]}
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(val) => `₹${val}`}
+                  />
+                  <Tooltip
+                    formatter={(value) => [`₹${value}`, "Close"]}
+                    labelFormatter={(label) => `Date: ${label}`}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="close"
+                    stroke="#0066cc"
+                    dot={false}
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+        </div>
   )
 }
 
