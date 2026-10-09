@@ -6,7 +6,8 @@ function MarketNews() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getMarketNews(10)
+    // 12 = four full rows of three. The page scrolls to show them all.
+    getMarketNews(12)
       .then(result => {
         setNews(result.results)
         setLoading(false)
@@ -23,7 +24,13 @@ function MarketNews() {
   return (
     <div>
       <h3>Market News</h3>
-      <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "16px"
+        }}
+      >
         {news.map((item, idx) => (
           <a
             key={idx}
@@ -32,15 +39,16 @@ function MarketNews() {
             rel="noopener noreferrer"
             style={{
               display: "block",
-              padding: "10px 14px",
-              borderBottom: idx < news.length - 1 ? "1px solid #eee" : "none",
+              padding: "12px 14px",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
               textDecoration: "none",
               color: "#222"
             }}
           >
             <div style={{ fontSize: "15px" }}>{item.title}</div>
             {(item.publisher || item.published) && (
-              <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
+              <div style={{ fontSize: "12px", color: "#888", marginTop: "6px" }}>
                 {item.publisher}
                 {item.publisher && item.published ? " · " : ""}
                 {item.published}
