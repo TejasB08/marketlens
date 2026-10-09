@@ -13,7 +13,7 @@ function SearchBar({ onSearch }) {
   }
 
   return (
-    <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
+    <div style={{ display: "flex", gap: "8px" }}>
       <input
         type="text"
         placeholder="Search stock... e.g. RELIANCE.NS"
