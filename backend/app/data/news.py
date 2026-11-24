@@ -6,7 +6,7 @@ news_cache = SimpleCache(ttl_seconds=600)
 
 # Tickers whose Yahoo Finance news feed we pull from.
 # Keep this list short — every ticker here is a separate news fetch.
-NEWS_SOURCE_TICKERS = ["^NSEI", "RELIANCE.NS", "HDFCBANK.NS", "TCS.NS"]
+company_name = ["Indian stock market","Reliance Industries","Infosis","TCS"]
 
 
 def _extract_fields(entry: dict) -> dict:
@@ -53,9 +53,9 @@ def fetch_raw_news(limit: int = 15) -> list:
     seen_titles = set()
     items = []
 
-    for ticker in NEWS_SOURCE_TICKERS:
+    for ticker in company_name:
         try:
-            raw = yf.Ticker(ticker).news or []
+            raw = yf.Search(ticker,news_count=20).news or []
         except Exception as e:
             print(f"Error fetching news for {ticker}: {e}")
             continue
