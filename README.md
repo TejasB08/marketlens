@@ -112,7 +112,7 @@ Interactive API documentation is available at `/docs` when the backend is runnin
 
 ### Prerequisites
 
-- Python 3.10 or a compatible version supported by the project's dependencies
+- Python 3.13 (recommended for the backend dependencies)
 - Node.js and npm
 - Git
 
@@ -159,6 +159,31 @@ The backend will typically be available at:
 
 - API server: `http://localhost:8000`
 - Interactive API documentation: `http://localhost:8000/docs`
+
+#### Optional PostgreSQL connection check
+
+From `backend`, copy `.env.example` to `.env` if `.env` does not already exist.
+Edit `.env` locally with your PostgreSQL settings. For the MarketLens local instance,
+use `localhost`, `5432`, `marketlens`, and `marketlens_user` for `DB_HOST`, `DB_PORT`,
+`DB_NAME`, and `DB_USER`. Set `DB_PASSWORD` to the database user's password.
+
+Use UTF-8 and one `KEY=value` per line. Put comments on separate lines. Single
+or double quotes can preserve leading or trailing spaces. Values are literal,
+including `#` and `$`, with no interpolation or escape processing. Git ignores
+`.env`. Set the same five variables in the backend process environment for
+deployment. Each environment variable takes precedence over its file value.
+
+With the backend virtual environment active, run from `backend`:
+
+```powershell
+python -m app.data.db
+```
+
+`PostgreSQL connection verified.` and exit code `0` mean the check authenticated
+and ran `SELECT 1`. Missing settings and failed connections return exit code `1`
+with a message that omits credentials. The check does not create tables. To test a
+failed connection, temporarily override `DB_PORT` in the shell with an unused
+local port.
 
 ### 3. Start the frontend
 
