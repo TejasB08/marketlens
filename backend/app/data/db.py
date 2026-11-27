@@ -6,15 +6,14 @@ from sqlalchemy import URL, Engine, create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.config import DatabaseConfigError, load_database_settings
+from app.config import DatabaseConfigError, DatabaseSettings, load_database_settings
 
 
 _initialization_lock = Lock()
 
 
-@cache
-def _create_database() -> tuple[Engine, sessionmaker[Session]]:
-    settings = load_database_settings()
+def create_database_engine(settings: DatabaseSettings) -> Engine:
+    """Build a PostgreSQL engine from explicit settings without opening a connection."""
     url = URL.create(
         "postgresql+psycopg",
         username=settings.user,
@@ -23,13 +22,18 @@ def _create_database() -> tuple[Engine, sessionmaker[Session]]:
         port=settings.port,
         database=settings.database,
     )
-    engine = create_engine(
+    return create_engine(
         url,
         pool_pre_ping=True,
         connect_args={"connect_timeout": 5},
         echo=False,
         hide_parameters=True,
     )
+
+
+@cache
+def _create_database() -> tuple[Engine, sessionmaker[Session]]:
+    engine = create_database_engine(load_database_settings())
     return engine, sessionmaker(bind=engine)
 
 

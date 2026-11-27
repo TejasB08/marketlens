@@ -185,6 +185,31 @@ with a message that omits credentials. The check does not create tables. To test
 failed connection, temporarily override `DB_PORT` in the shell with an unused
 local port.
 
+#### Apply database migrations
+
+After installing the backend requirements and verifying the PostgreSQL connection,
+run from `backend` with the virtual environment active.
+
+```powershell
+python -m alembic upgrade head
+python -m alembic current
+```
+
+Alembic uses the same database settings as the connection check. To review the
+initial SQL without connecting to a database, run `python -m alembic upgrade head --sql`.
+
+For database integration tests, create a separate PostgreSQL database with an empty
+public schema and a name beginning with `marketlens_test_`. Grant its test role
+permission to create tables in that schema. Set `MARKETLENS_TEST_DB_HOST`,
+`MARKETLENS_TEST_DB_PORT`, `MARKETLENS_TEST_DB_NAME`, `MARKETLENS_TEST_DB_USER`, and
+`MARKETLENS_TEST_DB_PASSWORD` in the test shell. Enter the password through a masked
+prompt or inject it from a secret store. The suite requires explicit test settings,
+checks the connected database name, and rolls back its migration and test data.
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
 ### 3. Start the frontend
 
 Open a second terminal from the project root:
