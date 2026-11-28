@@ -224,6 +224,60 @@ Open the local URL provided by Vite, typically `http://localhost:5173`.
 
 Ensure that the frontend API configuration points to the running backend and that any required CORS settings are configured.
 
+### Test Google sign-in locally
+
+In Google Cloud Console, configure Google Auth Platform branding, audience, and
+the sign-in scopes `openid`, `email`, and `profile`. If the app is external and in
+Testing, add the Google accounts you plan to use as test users. Create an OAuth
+client with application type **Web application** and register this exact authorized
+redirect URI for the Vite development server.
+
+```text
+http://localhost:5173/api/v1/auth/google/callback
+```
+
+Set these values in the backend process environment or edit `backend/.env` locally.
+
+```dotenv
+AUTH_PUBLIC_ORIGIN=http://localhost:5173
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+Apply the database migration and start FastAPI and Vite. Use `localhost` throughout
+the browser flow so the callback receives the same host-only cookie.
+
+1. Visit `http://localhost:5173/api/v1/auth/session` to confirm the guest response
+   is `{"user":null}`.
+2. Visit `http://localhost:5173/api/v1/auth/google/login` and finish Google's sign-in.
+   A successful callback redirects to `/`. A failed callback redirects to `/?auth=failed`.
+   React sign-in controls are a later milestone.
+3. Visit `/api/v1/auth/session` on the same origin and verify that the response
+   contains only the user ID and profile fields. In DevTools, confirm the session
+   cookie is HttpOnly and SameSite=Lax.
+4. In the same origin's browser console, first run
+   `await fetch('/api/v1/auth/logout', {method: 'POST'}).then(r => r.status)`.
+   For a signed-in user this returns `403` without the CSRF header. Then run:
+
+   ```js
+   const csrf = document.cookie.match(/(?:^|;\s*)marketlens_csrf=([^;]+)/)?.[1]
+   await fetch('/api/v1/auth/logout', {
+     method: 'POST',
+     headers: {'X-CSRF-Token': csrf},
+   }).then(r => r.status)
+   ```
+
+   Expect `204`, then confirm `/api/v1/auth/session` returns the guest response.
+
+In production, use a separate Google OAuth web client, set `AUTH_PUBLIC_ORIGIN`
+to the HTTPS site origin, register that origin's `/api/v1/auth/google/callback`,
+and forward `/api` to FastAPI on the same browser origin. HTTPS enables Secure
+cookies with the `__Host-` prefix. For authenticated writes, send the readable
+`__Host-marketlens_csrf` cookie value in `X-CSRF-Token`; the browser sends the
+HttpOnly session cookie separately. Configure the reverse proxy and any request
+tracing to omit auth query strings, cookie headers, and OAuth request bodies.
+Leave Vite proxy debug tracing disabled during OAuth testing.
+
 ## Market Data Integration
 
 MarketLens currently uses `yfinance` for market data retrieval. Data fetching is isolated within dedicated modules to keep provider-specific logic separate from the core application and simplify potential future integrations.

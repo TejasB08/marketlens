@@ -27,7 +27,7 @@ def digest(value: str) -> bytes:
     return sha256(value.encode()).digest()
 
 
-class DatabaseTests(unittest.TestCase):
+class PostgreSQLTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         settings = _load_test_settings()
@@ -51,6 +51,11 @@ class DatabaseTests(unittest.TestCase):
     def setUp(self):
         savepoint = self.connection.begin_nested()
         self.addCleanup(savepoint.rollback)
+
+
+class DatabaseTests(PostgreSQLTestCase):
+    def setUp(self):
+        super().setUp()
         self.session = self.enterContext(Session(bind=self.connection, join_transaction_mode="create_savepoint"))
         self.expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
 
